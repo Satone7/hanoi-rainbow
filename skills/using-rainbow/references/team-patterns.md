@@ -1,5 +1,36 @@
 # Team Patterns for Rainbow Workflow
 
+## Table of Contents
+
+1. [Complete Agent Team](#complete-agent-team)
+   - [Team Structure](#team-structure)
+2. [Agent Details](#agent-details)
+   - [initializer Agent](#initializer-agent)
+   - [assessor Agent](#assessor-agent)
+   - [specifier Agent](#specifier-agent)
+   - [clarifier Agent](#clarifier-agent)
+   - [designer Agent](#designer-agent)
+   - [taskifier Agent](#taskifier-agent)
+   - [analyzer Agent](#analyzer-agent)
+   - [implementer Agent](#implementer-agent)
+   - [e2e-tester Agent](#e2e-tester-agent)
+   - [issue-manager Agent](#issue-manager-agent)
+3. [Coordination Patterns](#coordination-patterns)
+   - [Sequential Handoff](#sequential-handoff-default)
+   - [Parallel Execution](#parallel-execution-when-possible)
+   - [Communication Flow](#communication-flow)
+4. [Task Tracking](#task-tracking)
+   - [Creating Tasks for Teammates](#creating-tasks-for-teammates)
+   - [Task Dependencies](#task-dependencies)
+5. [Team Creation Workflow](#team-creation-workflow)
+6. [Error Recovery Patterns](#error-recovery-patterns)
+   - [Agent Stuck](#agent-stuck)
+   - [Task Failed](#task-failed)
+   - [Phase Blocked](#phase-blocked)
+   - [Crash Recovery](#crash-recovery)
+
+---
+
 ## Complete Agent Team
 
 The Rainbow workflow uses a team of 10 specialized agents with isolated workspaces.

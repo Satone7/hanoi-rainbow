@@ -1,8 +1,25 @@
 # Rainbow Workflow Details
 
-## Complete Phase Specifications
+## Table of Contents
 
-### Phase 0: Setup (Before Rainbow Workflow)
+1. [Setup Prerequisites](#setup-prerequisites)
+2. [Phase Details](#phase-details)
+   - [Phase 1: Initialize](#phase-1-initialize-initializer-agent)
+   - [Phase 2: Assess Context](#phase-2-assess-context-assessor-agent---brownfield-only)
+   - [Phase 3: Specify](#phase-3-specify-specifier-agent)
+   - [Phase 4: Clarify](#phase-4-clarify-clarifier-agent)
+   - [Phase 5: Design](#phase-5-design-designer-agent)
+   - [Phase 6: Taskify](#phase-6-taskify-taskifier-agent)
+   - [Phase 7: Analyze](#phase-7-analyze-analyzer-agent)
+   - [Phase 8: Implement](#phase-8-implement-implementer-agent)
+   - [Phase 9: E2E Test](#phase-9-e2e-test-e2e-tester-agent)
+   - [Optional: Issue Management](#optional-issue-management-issue-manager-agent)
+3. [Quality Gates](#quality-gates)
+4. [Error Handling](#error-handling)
+
+---
+
+## Setup Prerequisites
 
 Before starting the Rainbow workflow, ensure:
 
@@ -10,42 +27,60 @@ Before starting the Rainbow workflow, ensure:
 2. **AI agent configured**: Claude Code, Gemini CLI, or other supported agent
 3. **Git repository**: Initialized with proper `.gitignore`
 
-### Phase 1: Regulate (Greenfield) / Assess Context (Brownfield)
+---
 
-#### Greenfield: `/rainbow.regulate`
+## Phase Details
 
-**Purpose**: Establish project governing principles
+### Phase 1: Initialize (initializer agent)
 
-**Output**: `memory/ground-rules.md`
+**Trigger**: Product initialization
 
-**Content**:
-- Code quality standards
-- Testing requirements
-- User experience guidelines
-- Performance requirements
-- Governance for technical decisions
+**Commands**: `/rainbow.regulate`, `/rainbow.architect`, `/rainbow.standardize`, `/rainbow.checklist`
 
-#### Brownfield: `/rainbow.assess-context`
+**Actions**:
+1. Create project principles (`memory/ground-rules.md`)
+2. Create system architecture (`docs/architecture.md`)
+3. Create coding standards (`docs/standards.md`)
+4. Generate quality checklists
 
-**Purpose**: Analyze existing codebase patterns
+**Output**: Foundation documents for the product
 
-**Output**: `memory/ground-rules.md`, context documentation
+**Branch**: `rainbow/init/<product-name>`
 
-**Analysis includes**:
-- Existing architecture patterns
-- Code conventions
-- Technology stack
-- Integration points
+---
 
-### Phase 2: Specify
+### Phase 2: Assess Context (assessor agent) - Brownfield Only
 
-**Command**: `/rainbow.specify`
+**Trigger**: Existing codebase analysis
 
-**Purpose**: Define WHAT to build and WHY
+**Commands**: `/rainbow.assess-context`
 
-**Input**: Natural language feature description
+**Actions**:
+1. Analyze existing architecture patterns
+2. Document current conventions
+3. Identify integration points
 
-**Output**: `specs/<feature-number>-<feature-name>/spec.md`
+**Output**: `memory/ground-rules.md` (updated for existing codebase)
+
+**Branch**: `rainbow/assess/<feature-id>`
+
+---
+
+### Phase 3: Specify (specifier agent)
+
+**Trigger**: New feature development
+
+**Commands**: `/rainbow.specify`
+
+**Actions**:
+1. Parse user's feature description
+2. Generate user stories with priorities
+3. Define functional requirements
+4. Create success criteria
+
+**Output**: `specs/<feature-id>/spec.md`
+
+**Branch**: `rainbow/spec/<feature-id>`
 
 **Spec Structure**:
 ```markdown
@@ -66,61 +101,48 @@ Before starting the Rainbow workflow, ensure:
 - Written for business stakeholders
 - Maximum 3 [NEEDS CLARIFICATION] markers
 
-### Phase 3: Clarify (Optional but Recommended)
+---
 
-**Command**: `/rainbow.clarify`
+### Phase 4: Clarify (clarifier agent)
 
-**Purpose**: Refine specification before planning
+**Trigger**: Specification needs refinement
 
-**When to use**:
-- Before `/rainbow.design`
-- When spec has [NEEDS CLARIFICATION] markers
-- For complex features requiring deeper analysis
+**Commands**: `/rainbow.clarify`
 
-### Phase 4: Architect (Product-Level, Run Once)
+**Communication Pattern**:
+```
+User → Main Agent → clarifier agent (questions)
+clarifier agent → Main Agent → User (present questions)
+User → Main Agent → clarifier agent (answers)
+```
 
-**Command**: `/rainbow.architect`
+**Actions**:
+1. Identify underspecified areas
+2. Generate clarification questions
+3. Update spec based on answers
 
-**Purpose**: Create system architecture documentation
+**Output**: Updated `spec.md` with clarifications section
 
-**Output**: `docs/architecture.md`
+**Branch**: `rainbow/clarify/<feature-id>`
 
-**Content**:
-- C4 diagrams (Context, Container, Component)
-- Technology stack decisions
-- Architecture patterns
-- Quality strategies
-- ADRs (Architecture Decision Records)
+---
 
-### Phase 5: Standardize (Product-Level, Run Once)
+### Phase 5: Design (designer agent)
 
-**Command**: `/rainbow.standardize`
+**Trigger**: Specification complete
 
-**Purpose**: Create coding standards
+**Commands**: `/rainbow.design`
 
-**Output**: `docs/standards.md`
+**Actions**:
+1. Load spec and context
+2. Research technical unknowns
+3. Design data models
+4. Create API contracts
+5. Generate implementation plan
 
-**Content**:
-- Naming conventions (UI, code, database)
-- File organization
-- API design standards
-- Testing standards
-- Git commit conventions
+**Output**: `design.md`, `research.md`, `data-model.md`, `contracts/`, `quickstart.md`
 
-### Phase 6: Design
-
-**Command**: `/rainbow.design`
-
-**Purpose**: Create technical implementation plan
-
-**Prerequisites**: `spec.md` complete
-
-**Output Files**:
-- `design.md` - Tech stack, architecture, file structure
-- `research.md` - Technical decisions and rationale
-- `data-model.md` - Entities and relationships
-- `contracts/` - API specifications (OpenAPI/GraphQL)
-- `quickstart.md` - Integration scenarios
+**Branch**: `rainbow/design/<feature-id>`
 
 **Execution Flow**:
 
@@ -136,15 +158,23 @@ digraph design_flow {
 }
 ```
 
-### Phase 7: Taskify
+---
 
-**Command**: `/rainbow.taskify`
+### Phase 6: Taskify (taskifier agent)
 
-**Purpose**: Generate actionable task list
+**Trigger**: Design artifacts complete
 
-**Prerequisites**: Design artifacts complete
+**Commands**: `/rainbow.taskify`
+
+**Actions**:
+1. Extract user stories from spec
+2. Map entities to stories
+3. Generate dependency-ordered tasks
+4. Create parallel execution markers
 
 **Output**: `tasks.md`
+
+**Branch**: `rainbow/tasks/<feature-id>`
 
 **Task Organization**:
 1. Phase 1: Setup
@@ -157,13 +187,41 @@ digraph design_flow {
 - [ ] [TaskID] [P?] [Story?] Description with file path
 ```
 
-### Phase 8: Implement
+---
 
-**Command**: `/rainbow.implement`
+### Phase 7: Analyze (analyzer agent)
 
-**Purpose**: Execute tasks to build the feature
+**Trigger**: Tasks generated, before implementation
 
-**Prerequisites**: `tasks.md` generated
+**Commands**: `/rainbow.analyze`
+
+**Actions**:
+1. Cross-artifact consistency check
+2. Coverage analysis
+3. Identify gaps and conflicts
+
+**Output**: Analysis report, updated tasks if needed
+
+**Branch**: `rainbow/analyze/<feature-id>`
+
+---
+
+### Phase 8: Implement (implementer agent)
+
+**Trigger**: Analysis complete
+
+**Commands**: `/rainbow.implement`
+
+**Actions**:
+1. Load tasks and design
+2. Execute phase by phase
+3. Follow TDD approach
+4. Mark completed tasks
+5. Commit after each unit
+
+**Output**: Working implementation
+
+**Branch**: `rainbow/impl/<feature-id>`
 
 **Execution Rules**:
 1. Phase-by-phase execution
@@ -177,6 +235,42 @@ digraph design_flow {
 - Commit after each logical unit
 - Report progress after each task
 
+---
+
+### Phase 9: E2E Test (e2e-tester agent)
+
+**Trigger**: Implementation complete
+
+**Commands**: `/rainbow.design-e2e-test`, `/rainbow.perform-e2e-test`
+
+**Actions**:
+1. Design E2E test specifications
+2. Execute E2E tests
+3. Generate test reports
+
+**Output**: E2E test suite and reports
+
+**Branch**: `rainbow/e2e/<feature-id>`
+
+---
+
+### Optional: Issue Management (issue-manager agent)
+
+**Trigger**: When GitHub/Azure DevOps tracking needed
+
+**Commands**: `/rainbow.tasks-to-issues`, `/rainbow.tasks-to-ado`
+
+**Actions**:
+1. Parse tasks from tasks.md
+2. Create issues/work items
+3. Set dependencies
+
+**Output**: GitHub issues or Azure DevOps work items
+
+**Branch**: `rainbow/issues/<feature-id>`
+
+---
+
 ## Quality Gates
 
 Each phase has quality gates that must pass:
@@ -184,9 +278,13 @@ Each phase has quality gates that must pass:
 | Phase | Quality Gate |
 |-------|-------------|
 | Specify | No [NEEDS CLARIFICATION] markers, testable requirements |
+| Clarify | All clarification questions answered |
 | Design | All NEEDS CLARIFICATION resolved, contracts valid |
 | Taskify | All user stories have tasks, dependencies mapped |
+| Analyze | No critical issues found |
 | Implement | All tasks complete, tests pass, spec matched |
+
+---
 
 ## Error Handling
 
@@ -206,3 +304,7 @@ Each phase has quality gates that must pass:
 4. **"Checklists incomplete"**
    - Solution: Complete checklist items before implementation
    - Or explicitly confirm to proceed anyway
+
+5. **"Analysis found critical issues"**
+   - Solution: Fix issues in design/tasks before implementation
+   - Re-run `/rainbow.analyze` after fixes
